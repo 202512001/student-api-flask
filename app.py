@@ -107,11 +107,18 @@ def update_student(id):
 @app.route("/delete-student/<int:id>", methods=["DELETE"])
 def delete_student(id):
     conn = get_db_connection()
+    cursor = conn.execute("SELECT * FROM students WHERE id=?", (id,))
+    student = cursor.fetchone()
+
+    if student is None:
+        conn.close()
+        return jsonify({"error": "Student not found"}), 404
+
     conn.execute("DELETE FROM students WHERE id=?", (id,))
     conn.commit()
     conn.close()
 
-    return jsonify({"message": "Student deleted"})
+    return jsonify({"message": "Student deleted successfully"})
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=8000, debug=False, use_reloader=False)
